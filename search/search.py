@@ -106,9 +106,9 @@ def depthFirstSearch(problem: SearchProblem):
 
         for successor in problem.getSuccessors(state):
             next_state, action, _ = successor
-            print("Successor to", state, ": ", successor)
+            # print("Successor to", state, ": ", successor)
             if next_state not in visited:
-                print("Pushing", next_state)
+                # print("Pushing", next_state)
                 stack.push((next_state, path + [action]))
 
     # We should always find a happy path before here
@@ -117,7 +117,34 @@ def depthFirstSearch(problem: SearchProblem):
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    visited = set()
+    queue = util.Queue()
+    queue.push((problem.getStartState(), []))
+
+    while not queue.isEmpty():
+        front = queue.pop()
+        state = front[0]
+        path = front[1]
+
+        if state in visited:
+            continue
+        
+        visited.add(state)
+
+        if problem.isGoalState(state):
+            return path
+        
+        for successor in problem.getSuccessors(state):
+            next_state, action, _ = successor
+            # print("Successor to", state, ": ", successor)
+            if next_state not in visited:
+                # print("Pushing", next_state)
+                queue.push((next_state, path + [action]))
+
+    # We should always find a happy path before here
+    assert(False)
+
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
