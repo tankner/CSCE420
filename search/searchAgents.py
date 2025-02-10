@@ -509,7 +509,10 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
 
     min_dist = float('inf')
     for food_pos in food:
-        dist = util.manhattanDistance(food_pos, position)
+        # print("manhattan:", util.manhattanDistance(food_pos, position))
+        # print("maze dist:", mazeDistance(food_pos, position, problem.startingGameState))
+        dist = mazeDistance(food_pos, position, problem.startingGameState)
+        # dist = util.manhattanDistance(food_pos, position)
         if dist < min_dist:
             min_dist = dist
 
