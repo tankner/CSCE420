@@ -358,8 +358,7 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
-def manhattanDistance(xy1: tuple[int, int], xy2: tuple[int, int]):
-        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
 
 def cornersHeuristic(state: Any, problem: CornersProblem):
     """
@@ -390,8 +389,8 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     
     min_path = float('inf')
     for path in corner_paths:
-        path_len = manhattanDistance(current_position, path[0]) + sum(
-            manhattanDistance(path[i - 1], path[i]) for i in range(1, len(path))
+        path_len = util.manhattanDistance(current_position, path[0]) + sum(
+            util.manhattanDistance(path[i - 1], path[i]) for i in range(1, len(path))
         )
         min_path = min(min_path, path_len)
 
@@ -488,12 +487,33 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return foodGrid.count()
-    # print("Position", position)
-    # print("Food Grid:")
-    # print(foodGrid)
-    # util.pause()
-    return 0
+    if problem.isGoalState(state):
+        return 0
+    # store the *visible* food
+
+    food = foodGrid.asList()
+    walls = problem.walls.asList()
+
+    # print(walls)
+
+    # food_paths = itertools.permutations(food)
+    
+    # min_path = float('inf')
+    # for path in food_paths:
+    #     path_len = util.manhattanDistance(position, path[0]) + sum(
+    #         util.manhattanDistance(path[i - 1], path[i]) for i in range(1, len(path))
+    #     )
+    #     min_path = min(min_path, path_len)
+
+    # return min_path
+
+    min_dist = float('inf')
+    for food_pos in food:
+        dist = util.manhattanDistance(food_pos, position)
+        if dist < min_dist:
+            min_dist = dist
+
+    return foodGrid.count() + min_dist - 1
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -529,7 +549,7 @@ class ClosestDotSearchAgent(SearchAgent):
             for j, f in enumerate(row):
                 if not f:
                     continue
-                dist = manhattanDistance((i, j), startPosition)
+                dist = util.manhattanDistance((i, j), startPosition)
                 if dist < min_dist:
                     closest_dot = i, j
                     min_dist = dist
