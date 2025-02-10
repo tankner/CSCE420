@@ -386,7 +386,7 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     corners_avail = set(c for i, c in enumerate(corners) if corner_state[i])
     # attempt #1: find the total manhattan distance from the current position to the closest (manhattan distance-wise) corner, 
     # plus the distance to the next corner, and so on 
-    print("remaining corners:", corners_avail)
+    # print("remaining corners:", corners_avail)
     corner_paths = itertools.permutations(corners_avail)
     
     min_path = float('inf')
@@ -489,6 +489,11 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
+    return foodGrid.count()
+    # print("Position", position)
+    # print("Food Grid:")
+    # print(foodGrid)
+    # util.pause()
     return 0
 
 class ClosestDotSearchAgent(SearchAgent):

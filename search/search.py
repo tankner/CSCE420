@@ -162,7 +162,7 @@ def uniformCostSearch(problem: SearchProblem):
         cost = front[2]
 
         if state in visited:
-            print("Already visited: ", state)
+            # print("Already visited: ", state)
             continue
 
         # print(state)
@@ -208,7 +208,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
         if state in visited:
             continue
 
-        print(state)
+        # print(state)
         visited.add(state)
 
         if problem.isGoalState(state):
@@ -216,9 +216,9 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
         
         for successor in problem.getSuccessors(state):
             next_state, action, next_cost = successor
-            print("Successor to", state, ": ", successor)
+            # print("Successor to", state, ": ", successor)
             if next_state not in visited:
-                print("Pushing", next_state)
+                # print("Pushing", next_state)
                 queue.push((next_state, path + [action], cost + next_cost))
 
     assert(False)
