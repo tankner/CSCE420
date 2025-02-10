@@ -358,6 +358,8 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
+def manhattanDistance(xy1: tuple[int, int], xy2: tuple[int, int]):
+        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
 def cornersHeuristic(state: Any, problem: CornersProblem):
     """
@@ -378,9 +380,6 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     "*** YOUR CODE HERE ***"
     if problem.isGoalState(state):
         return 0
-
-    def manhattanDistance(xy1: tuple[int, int], xy2: tuple[int, int]):
-        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
     
     current_position, corner_state = state
     corners_avail = set(c for i, c in enumerate(corners) if corner_state[i])
@@ -525,7 +524,19 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        min_dist = float('inf')
+        for i, row in enumerate(food):
+            for j, f in enumerate(row):
+                if not f:
+                    continue
+                dist = manhattanDistance((i, j), startPosition)
+                if dist < min_dist:
+                    closest_dot = i, j
+                    min_dist = dist
+
+
+        problem.goal = closest_dot
+        return search.aStarSearch(problem, manhattanHeuristic)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -561,7 +572,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
     """
