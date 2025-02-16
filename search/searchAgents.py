@@ -489,34 +489,34 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     "*** YOUR CODE HERE ***"
     if problem.isGoalState(state):
         return 0
-    # store the *visible* food
-
-    food = foodGrid.asList()
-    walls = problem.walls.asList()
-
-    # print(walls)
-
-    # food_paths = itertools.permutations(food)
     
-    # min_path = float('inf')
-    # for path in food_paths:
-    #     path_len = util.manhattanDistance(position, path[0]) + sum(
-    #         util.manhattanDistance(path[i - 1], path[i]) for i in range(1, len(path))
-    #     )
-    #     min_path = min(min_path, path_len)
+    foodList = foodGrid.asList()
 
-    # return min_path
+    edges = []
+    for i in range(len(foodList)):
+        for j in range(i + 1, len(foodList)):
+            dist = util.manhattanDistance(foodList[i], foodList[j])
+            edges.append((dist, i, j))
 
-    min_dist = float('inf')
-    for food_pos in food:
-        # print("manhattan:", util.manhattanDistance(food_pos, position))
-        # print("maze dist:", mazeDistance(food_pos, position, problem.startingGameState))
-        dist = mazeDistance(food_pos, position, problem.startingGameState)
-        # dist = util.manhattanDistance(food_pos, position)
-        if dist < min_dist:
-            min_dist = dist
+    edges.sort()
 
-    return foodGrid.count() + min_dist - 1
+    parent = list(range(len(foodList)))
+
+    def find(u):
+        if parent[u] != u:
+            parent[u] = find(parent[u])
+        return parent[u]
+    
+    mst_sum = 0
+    for dist, u, v in edges:
+        root_u = find(u)
+        root_v = find(v)
+        if root_u != root_v:
+            parent[root_u] = root_v
+            mst_sum += dist
+
+    closest = min((util.manhattanDistance(position, pellet)) for pellet in foodList)
+    return mst_sum + closest
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
