@@ -28,7 +28,7 @@ IMPORTANT
 `agent` defines which agent you will use. By default, it is set to ClosestDotAgent,
 but when you're ready to test your own agent, replace it with MyAgent
 """
-def createAgents(num_pacmen, agent='AStarFoodSearchAgent'):
+def createAgents(num_pacmen, agent='ClosestDotAgent'):
     return [eval(agent)(index=i) for i in range(num_pacmen)]
 
 class MyAgent(Agent):
