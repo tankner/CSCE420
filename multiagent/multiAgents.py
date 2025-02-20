@@ -73,9 +73,68 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        capsules = successorGameState.getCapsules()
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        foodList = newFood.asList()
+
+        if(foodList):
+            # closest = min((util.manhattanDistance(newPos, pellet)) for pellet in foodList)
+            edges = []
+            for i in range(len(foodList)):
+                for j in range(i + 1, len(foodList)):
+                    dist = util.manhattanDistance(foodList[i], foodList[j])
+                    edges.append((dist, i, j))
+
+            edges.sort()
+
+            parent = list(range(len(foodList)))
+
+            def find(u):
+                if parent[u] != u:
+                    parent[u] = find(parent[u])
+                return parent[u]
+            
+            mst_sum = 0
+            for dist, u, v in edges:
+                root_u = find(u)
+                root_v = find(v)
+                if root_u != root_v:
+                    parent[root_u] = root_v
+                    mst_sum += dist
+
+            closest = min((util.manhattanDistance(newPos, pellet)) for pellet in foodList)
+            food_proximity_factor = -closest
+        else:
+            food_proximity_factor = 0
+
+        num_food = len(foodList)
+        food_factor = -num_food
+
+        # print("Ghost states:", list(g.getPosition() for g in newGhostStates))
+        # print("Scared Times:", newScaredTimes)
+
+        if newGhostStates:
+            closest_ghost = min([util.manhattanDistance(newPos, ghost.getPosition()) for ghost in newGhostStates if ghost.scaredTimer == 0], default=float('inf'))
+            if(closest_ghost < 5):
+                ghost_proximity_factor = closest_ghost
+            else:
+                ghost_proximity_factor = 100
+        else:
+            ghost_proximity_factor = 100
+
+        if capsules and any(g.scaredTimer == 0 for g in newGhostStates):
+            closest_capsule = min(util.manhattanDistance(newPos, capsule) for capsule in capsules)
+            capsule_proximity_factor = -closest_capsule
+        elif not capsules:
+            capsule_proximity_factor = 0
+        else:
+            capsule_proximity_factor = float('-inf')
+
+        scared_factor = sum(newScaredTimes)
+        score = food_proximity_factor + food_factor*100 + ghost_proximity_factor*100 + scared_factor + capsule_proximity_factor
+        print("Score:", score)
+        return score
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
