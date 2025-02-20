@@ -17,6 +17,7 @@ from game import Actions
 from game import Directions
 from searchProblems import PositionSearchProblem
 from searchProblems import manhattanHeuristic
+from searchProblems import mazeDistance
 
 import util
 import time
@@ -230,35 +231,75 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     if problem.isGoalState(state):
         return 0
     
-    foodList = foodGrid.asList()
-
-    edges = []
-    for i in range(len(foodList)):
-        for j in range(i + 1, len(foodList)):
-            dist = util.manhattanDistance(foodList[i], foodList[j])
-            edges.append((dist, i, j))
-
-    edges.sort()
-
-    parent = list(range(len(foodList)))
-
-    def find(u):
-        if parent[u] != u:
-            parent[u] = find(parent[u])
-        return parent[u]
+    food = foodGrid.asList()
     
-    mst_sum = 0
-    for dist, u, v in edges:
-        root_u = find(u)
-        root_v = find(v)
-        if root_u != root_v:
-            parent[root_u] = root_v
-            mst_sum += dist
+    min_dist = float('inf')
+    for food_pos in food:
+        # print("manhattan:", util.manhattanDistance(food_pos, position))
+        # print("maze dist:", mazeDistance(food_pos, position, problem.startingGameState))
+        # dist = mazeDistance(food_pos, position, problem.startingGameState)
+        dist = util.manhattanDistance(food_pos, position)
+        if dist < min_dist:
+            min_dist = dist
+    return foodGrid.count() + min_dist - 1
+    
+    # if 'precomputed' not in problem.heuristicInfo:
+    #     foodList = foodGrid.asList()
+    #     edges = []
+    #     for i in range(len(foodList)):
+    #         for j in range(i + 1, len(foodList)):
+    #             dist = util.manhattanDistance(foodList[i], foodList[j])
+    #             edges.append((dist, i, j))
+    #             # print("explored food at", i, j)
+    #     edges.sort()
 
-    closest = min((util.manhattanDistance(position, pellet)) for pellet in foodList)
-    return mst_sum + closest
+    #     problem.heuristicInfo['precomputed'] = {
+    #         'food_list': foodList,
+    #         'sorted_edges': edges
+    #     }
+
+    # foodList = problem.heuristicInfo['precomputed']['food_list']
+    # sorted_edges = problem.heuristicInfo['precomputed']['sorted_edges']
+
+    # current_set = set(foodList)
+
+    # active_indices = {
+    #     i for i, pellet in enumerate(foodList)
+    #     if pellet in current_set
+    # }
+
+    # filtered_edges = [
+    #     (dist, i, j)
+    #     for dist, i, j in sorted_edges
+    #     if i in active_indices and j in active_indices
+    # ]
+
+    # parent = {}
+
+    # for i in active_indices:
+    #     parent[i] = i
+
+    # def find(u):
+    #     if parent[u] != u:
+    #         parent[u] = find(parent[u])
+    #     return parent[u]
+    
+    # mst_sum = 0
+    # for dist, u, v in filtered_edges:
+    #     root_u = find(u)
+    #     root_v = find(v)
+    #     if root_u != root_v:
+    #         parent[root_u] = root_v
+    #         mst_sum += dist
+
+    # closest = min((util.manhattanDistance(position, pellet)) for pellet in foodList)
+    # return mst_sum + closest
 
 class ClosestDotAgent(Agent):
+
+    def __init__(self, index):
+        self.path_to_closest = []
+        Agent.__init__(self, index)
 
     def findPathToClosestDot(self, gameState):
         """
@@ -287,7 +328,10 @@ class ClosestDotAgent(Agent):
         return search.aStarSearch(problem, manhattanHeuristic)
 
     def getAction(self, state):
-        return self.findPathToClosestDot(state)[0]
+        if len(self.path_to_closest) == 0:
+            self.path_to_closest = list(reversed(self.findPathToClosestDot(state)))
+
+        return self.path_to_closest.pop()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
