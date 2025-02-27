@@ -244,6 +244,46 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             alpha = max(alpha, v)
 
         return action
+    
+    def MinValue(self, gameState: GameState, index, depth, alpha, beta):
+        actions = gameState.getLegalActions(index)
+        numAgents = gameState.getNumAgents()
+
+        if index == numAgents - 1:
+            nextIndex = 0
+            nextDepth = depth + 1
+        else:
+            nextIndex = index + 1
+            nextDepth = depth
+
+        v = float('inf')
+        for a in actions:
+            s = gameState.generateSuccessor(index, a)
+            v = min(v, self.Minimax(s, nextIndex, nextDepth, alpha, beta))
+            if v < alpha:
+                return v
+            beta = min(beta, v)
+        return v
+
+    def MaxValue(self, gameState: GameState, index, depth, alpha, beta):
+        actions = gameState.getLegalActions(index)
+        numAgents = gameState.getNumAgents()
+
+        if index == numAgents - 1:
+            nextIndex = 0
+            nextDepth = depth + 1
+        else:
+            nextIndex = index + 1
+            nextDepth = depth
+        
+        v = float('-inf')
+        for a in actions:
+            s = gameState.generateSuccessor(index, a)
+            v = max(v, self.Minimax(s, nextIndex, nextDepth, alpha, beta))
+            if v > beta:
+                return v
+            alpha = max(alpha, v)
+        return v
 
     def AtDepth(self, numAgents, index, depth):
         return depth == self.depth
@@ -256,34 +296,11 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         if self.AtDepth(numAgents, index, depth) or gameState.isWin() or gameState.isLose():
             return self.evaluationFunction(gameState)
-            
-        if index == numAgents - 1:
-            nextIndex = 0
-            nextDepth = depth + 1
-        else:
-            nextIndex = index + 1
-            nextDepth = depth
-
-        actions = gameState.getLegalActions(index)
 
         if index == 0:
-            v = float('-inf')
-            for a in actions:
-                s = gameState.generateSuccessor(index, a)
-                v = max(v, self.Minimax(s, nextIndex, nextDepth, alpha, beta))
-                if v > beta:
-                    return v
-                alpha = max(alpha, v)
+            return self.MaxValue(gameState, index, depth, alpha, beta)
         else:
-            v = float('inf')
-            for a in actions:
-                s = gameState.generateSuccessor(index, a)
-                v = min(v, self.Minimax(s, nextIndex, nextDepth, alpha, beta))
-                if v < alpha:
-                    return v
-                beta = min(beta, v)
-            
-        return v
+            return self.MinValue(gameState, index, depth, alpha, beta)
     
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
