@@ -227,8 +227,64 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        actions = gameState.getLegalActions(0)
+        nextStates = [gameState.generateSuccessor(0, a) for a in actions]
+        alpha = float('-inf')
+        beta = float('inf')
 
+        v = float('-inf')
+        action = None
+        for i, s in enumerate(nextStates):
+            minimax = self.Minimax(s, 1, 0, alpha, beta)
+            if minimax > v:
+                v = minimax
+                action = actions[i] 
+            if v > beta:
+                return actions[i]
+            alpha = max(alpha, v)
+
+        return action
+
+    def AtDepth(self, numAgents, index, depth):
+        return depth == self.depth
+
+    def Minimax(self, gameState: GameState, index, depth, alpha, beta):
+        """
+        Recursive function to find the Minimax value of a given node
+        """
+        numAgents = gameState.getNumAgents()
+
+        if self.AtDepth(numAgents, index, depth) or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+            
+        if index == numAgents - 1:
+            nextIndex = 0
+            nextDepth = depth + 1
+        else:
+            nextIndex = index + 1
+            nextDepth = depth
+
+        actions = gameState.getLegalActions(index)
+
+        if index == 0:
+            v = float('-inf')
+            for a in actions:
+                s = gameState.generateSuccessor(index, a)
+                v = max(v, self.Minimax(s, nextIndex, nextDepth, alpha, beta))
+                if v > beta:
+                    return v
+                alpha = max(alpha, v)
+        else:
+            v = float('inf')
+            for a in actions:
+                s = gameState.generateSuccessor(index, a)
+                v = min(v, self.Minimax(s, nextIndex, nextDepth, alpha, beta))
+                if v < alpha:
+                    return v
+                beta = min(beta, v)
+            
+        return v
+    
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
