@@ -380,7 +380,52 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    capsules = currentGameState.getCapsules()
+
+    "*** YOUR CODE HERE ***"
+    if(currentGameState.isWin()):
+        return float('inf')
+    
+    if(currentGameState.isLose()):
+        return float('-inf')
+
+    foodList = newFood.asList()
+
+    if(foodList):
+        closest = min((util.manhattanDistance(newPos, pellet)) for pellet in foodList)
+        food_proximity_factor = -closest
+    else:
+        food_proximity_factor = 0
+
+    num_food = len(foodList)
+    food_factor = -num_food
+
+    # print("Ghost states:", list(g.getPosition() for g in newGhostStates))
+    # print("Scared Times:", newScaredTimes)
+
+    if newGhostStates:
+        closest_ghost = min([util.manhattanDistance(newPos, ghost.getPosition()) for ghost in newGhostStates if ghost.scaredTimer == 0], default=float('inf'))
+        if(closest_ghost < 5):
+            ghost_proximity_factor = closest_ghost
+        else:
+            ghost_proximity_factor = 100
+    else:
+        ghost_proximity_factor = 100
+
+    if capsules:
+        closest_capsule = min(util.manhattanDistance(newPos, capsule) for capsule in capsules)
+        capsule_proximity_factor = -closest_capsule
+    else:
+        capsule_proximity_factor = 0
+
+    scared_factor = sum(newScaredTimes)
+    score = food_proximity_factor + food_factor*100 + ghost_proximity_factor*100 + scared_factor + capsule_proximity_factor
+    # print("Score:", score)
+    return score
 
 # Abbreviation
 better = betterEvaluationFunction
