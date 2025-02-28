@@ -315,7 +315,62 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        actions = gameState.getLegalActions(0)
+        nextStates = [gameState.generateSuccessor(0, a) for a in actions]
+        minimaxValues = [self.Expectimax(s, index=1, depth=0) for s in nextStates]
+
+        maxValue = max(minimaxValues)
+        actionIndex = minimaxValues.index(maxValue)
+
+        # print(actions[actionIndex])
+        return actions[actionIndex]
+
+    def AtDepth(self, numAgents, index, depth):
+        return depth == self.depth
+
+    def Expectimax(self, gameState: GameState, index, depth):
+        """
+        Recursive function to find the Expectimax value of a given node
+        """
+        numAgents = gameState.getNumAgents()
+
+        if self.AtDepth(numAgents, index, depth) or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+
+        if index == 0:
+            return self.MaxValue(gameState, index, depth)
+        else:
+            return self.ExpValue(gameState, index, depth)
+
+    def MaxValue(self, gameState: GameState, index, depth):
+        actions = gameState.getLegalActions(index)
+        numAgents = gameState.getNumAgents()
+
+        if index == numAgents - 1:
+            nextIndex = 0
+            nextDepth = depth + 1
+        else:
+            nextIndex = index + 1
+            nextDepth = depth
+        
+        nextStates = [gameState.generateSuccessor(index, a) for a in actions]
+        expectimaxValues = (self.Expectimax(s, nextIndex, nextDepth) for s in nextStates)
+        return max(expectimaxValues)
+    
+    def ExpValue(self, gameState: GameState, index, depth):
+        actions = gameState.getLegalActions(index)
+        numAgents = gameState.getNumAgents()
+
+        if index == numAgents - 1:
+            nextIndex = 0
+            nextDepth = depth + 1
+        else:
+            nextIndex = index + 1
+            nextDepth = depth
+        
+        nextStates = [gameState.generateSuccessor(index, a) for a in actions]
+        expectimaxValues = [self.Expectimax(s, nextIndex, nextDepth) for s in nextStates]
+        return sum(expectimaxValues) / len(list(expectimaxValues))
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
