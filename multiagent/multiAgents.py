@@ -380,10 +380,10 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    newPos = currentGameState.getPacmanPosition()
-    newFood = currentGameState.getFood()
-    newGhostStates = currentGameState.getGhostStates()
-    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    pos = currentGameState.getPacmanPosition()
+    food = currentGameState.getFood()
+    ghostStates = currentGameState.getGhostStates()
+    scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
     capsules = currentGameState.getCapsules()
 
     "*** YOUR CODE HERE ***"
@@ -393,39 +393,38 @@ def betterEvaluationFunction(currentGameState: GameState):
     if(currentGameState.isLose()):
         return float('-inf')
 
-    foodList = newFood.asList()
+    # what makes a good state
+    # minimum amounts of food
+    # minimum distance from food
+    # minimum amounts of pellets
 
-    if(foodList):
-        closest = min((util.manhattanDistance(newPos, pellet)) for pellet in foodList)
-        food_proximity_factor = -closest
-    else:
-        food_proximity_factor = 0
+    foodList = food.asList()
 
-    num_food = len(foodList)
-    food_factor = -num_food
+    edges = []
+    for i in range(len(foodList)):
+        for j in range(i + 1, len(foodList)):
+            dist = util.manhattanDistance(foodList[i], foodList[j])
+            edges.append((dist, i, j))
 
-    # print("Ghost states:", list(g.getPosition() for g in newGhostStates))
-    # print("Scared Times:", newScaredTimes)
+    edges.sort()
 
-    if newGhostStates:
-        closest_ghost = min([util.manhattanDistance(newPos, ghost.getPosition()) for ghost in newGhostStates if ghost.scaredTimer == 0], default=float('inf'))
-        if(closest_ghost < 5):
-            ghost_proximity_factor = closest_ghost
-        else:
-            ghost_proximity_factor = 100
-    else:
-        ghost_proximity_factor = 100
+    parent = list(range(len(foodList)))
 
-    if capsules:
-        closest_capsule = min(util.manhattanDistance(newPos, capsule) for capsule in capsules)
-        capsule_proximity_factor = -closest_capsule
-    else:
-        capsule_proximity_factor = 0
+    def find(u):
+        if parent[u] != u:
+            parent[u] = find(parent[u])
+        return parent[u]
+    
+    mst_sum = 0
+    for dist, u, v in edges:
+        root_u = find(u)
+        root_v = find(v)
+        if root_u != root_v:
+            parent[root_u] = root_v
+            mst_sum += dist
 
-    scared_factor = sum(newScaredTimes)
-    score = food_proximity_factor + food_factor*100 + ghost_proximity_factor*100 + scared_factor + capsule_proximity_factor*100
-    # print("Score:", score)
-    return score
+    closest = min((util.manhattanDistance(pos, pellet)) for pellet in foodList)
+    return -(mst_sum + closest)
 
 # Abbreviation
 better = betterEvaluationFunction
