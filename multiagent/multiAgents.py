@@ -423,7 +423,7 @@ def betterEvaluationFunction(currentGameState: GameState):
         capsule_proximity_factor = 0
 
     scared_factor = sum(newScaredTimes)
-    score = food_proximity_factor + food_factor*100 + ghost_proximity_factor*100 + scared_factor + capsule_proximity_factor
+    score = food_proximity_factor + food_factor*100 + ghost_proximity_factor*100 + scared_factor + capsule_proximity_factor*100
     # print("Score:", score)
     return score
 
