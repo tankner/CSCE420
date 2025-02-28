@@ -317,50 +317,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
-    def Expectimax(self, gameState: GameState, index, depth):
-        """
-        Recursive function to find the Expectimax value of a given node
-        """
-        numAgents = gameState.getNumAgents()
-
-        if self.AtDepth(numAgents, index, depth) or gameState.isWin() or gameState.isLose():
-            return self.evaluationFunction(gameState)
-
-        if index == 0:
-            return self.MaxValue(gameState, index, depth)
-        else:
-            return self.ExpValue(gameState, index, depth)
-
-    def MaxValue(self, gameState: GameState, index, depth):
-        actions = gameState.getLegalActions(index)
-        numAgents = gameState.getNumAgents()
-
-        if index == numAgents - 1:
-            nextIndex = 0
-            nextDepth = depth + 1
-        else:
-            nextIndex = index + 1
-            nextDepth = depth
-        
-        nextStates = [gameState.generateSuccessor(index, a) for a in actions]
-        expectimaxValues = (self.Expectimax(s, nextIndex, nextDepth) for s in nextStates)
-        return max(expectimaxValues)
-    
-    def ExpValue(self, gameState: GameState, index, depth):
-        actions = gameState.getLegalActions(index)
-        numAgents = gameState.getNumAgents()
-
-        if index == numAgents - 1:
-            nextIndex = 0
-            nextDepth = depth + 1
-        else:
-            nextIndex = index + 1
-            nextDepth = depth
-        
-        nextStates = [gameState.generateSuccessor(index, a) for a in actions]
-        expectimaxValues = (self.Expectimax(s, nextIndex, nextDepth) for s in nextStates)
-        return sum(expectimaxValues) / len(expectimaxValues)
-
 def betterEvaluationFunction(currentGameState: GameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
