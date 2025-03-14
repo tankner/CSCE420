@@ -424,7 +424,11 @@ def betterEvaluationFunction(currentGameState: GameState):
             mst_sum += dist
 
     closest = min((util.manhattanDistance(pos, pellet)) for pellet in foodList)
-    return -(mst_sum + closest)
+    food_dist = -(mst_sum + closest)
+
+    score = food_dist - len(foodList) + currentGameState.getScore()*100
+    # print("score:", score)
+    return score
 
 # Abbreviation
 better = betterEvaluationFunction
