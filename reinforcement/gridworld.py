@@ -86,10 +86,12 @@ class Gridworld(mdp.MarkovDecisionProcess):
         less use this convention).
         """
         if state == self.grid.terminalState:
+            # print("TERMINAL STATE")
             return 0.0
         x, y = state
         cell = self.grid[x][y]
         if type(cell) == int or type(cell) == float:
+            # print("Non-terminal STATE")
             return cell
         return self.livingReward
 
@@ -120,6 +122,7 @@ class Gridworld(mdp.MarkovDecisionProcess):
         """
 
         if action not in self.getPossibleActions(state):
+            print(state)
             raise Exception("Illegal action!")
 
         if self.isTerminal(state):
