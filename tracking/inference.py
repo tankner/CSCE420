@@ -206,14 +206,14 @@ def inferenceByVariableEliminationWithCallTracking(callTrackingList=None):
 
         "*** YOUR CODE HERE ***"
         factors = bayesNet.getAllCPTsWithEvidence(evidenceDict)
-        print(factors)
-        print(eliminationOrder)
+        # print(factors)
+        # print(eliminationOrder)
         for var in eliminationOrder:
             factors, joinedFactor = joinFactorsByVariable(factors, var)
 
             if len(joinedFactor.unconditionedVariables()) > 1:
                 factors.append(eliminate(joinedFactor, var))
-            print(factors)
+            # print(factors)
         
         finalFactor = joinFactors(factors)
 
@@ -592,7 +592,11 @@ class ExactInference(InferenceModule):
         position is known.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        pacmanPos = gameState.getPacmanPosition()
+        jailPos = self.getJailPosition()
+        # print(self.beliefs)
+        for ghostPos in self.allPositions:
+            self.beliefs[ghostPos] *= self.getObservationProb(observation, pacmanPos, ghostPos, jailPos)
         "*** END YOUR CODE HERE ***"
         self.beliefs.normalize()
     
