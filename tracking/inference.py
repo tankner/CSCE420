@@ -614,7 +614,18 @@ class ExactInference(InferenceModule):
         current position is known.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        newBeliefs = DiscreteDistribution()
+        for p in self.legalPositions:
+            newBeliefs[p] = 0.0
+        for pos, prob in self.beliefs.items():
+            if prob == 0.0:
+                continue
+            newPosDist = self.getPositionDistribution(gameState, pos)
+            for newPos, newProb in newPosDist.items():
+                newBeliefs[newPos] += prob * newProb
+        
+        self.beliefs = newBeliefs
+        self.beliefs.normalize()
         "*** END YOUR CODE HERE ***"
 
     def getBeliefDistribution(self):
