@@ -674,7 +674,7 @@ class ParticleFilter(InferenceModule):
         "*** YOUR CODE HERE ***"
         beliefs = DiscreteDistribution()
         for particle in self.particles:
-            beliefs[particle] = 1.0
+            beliefs[particle] += 1.0
         beliefs.normalize()
         return beliefs
         "*** END YOUR CODE HERE ***"
@@ -696,7 +696,20 @@ class ParticleFilter(InferenceModule):
         the DiscreteDistribution may be useful.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        beliefs = self.getBeliefDistribution()            
+        
+        pacmanPos = gameState.getPacmanPosition()
+        jailPos = self.getJailPosition()
+        # print(self.beliefs)
+        for ghostPos in self.allPositions:
+            beliefs[ghostPos] *= self.getObservationProb(observation, pacmanPos, ghostPos, jailPos)
+        
+        if beliefs.total() == 0:
+            self.initializeUniformly(gameState)
+        else:
+            self.particles = []
+            for _ in range(self.numParticles):
+                self.particles.append(beliefs.sample())
         "*** END YOUR CODE HERE ***"
     
     ########### ########### ###########
