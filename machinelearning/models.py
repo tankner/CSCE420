@@ -149,6 +149,16 @@ class DigitClassificationModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
+        self.HIDDEN_LAYER_SIZE = 200
+        self.BATCH_SIZE = 100
+        self.LEARNING_RATE = 0.5
+        self.INPUT_SIZE = 784
+        self.OUTPUT_SIZE = 10
+
+        self.w1 = nn.Parameter(self.INPUT_SIZE, self.HIDDEN_LAYER_SIZE)
+        self.b1 = nn.Parameter(1, self.HIDDEN_LAYER_SIZE)
+        self.w2 = nn.Parameter(self.HIDDEN_LAYER_SIZE, self.OUTPUT_SIZE)
+        self.b2 = nn.Parameter(1, self.OUTPUT_SIZE)
 
     def run(self, x):
         """
@@ -165,6 +175,13 @@ class DigitClassificationModel(object):
                 (also called logits)
         """
         "*** YOUR CODE HERE ***"
+        xw1 = nn.Linear(x, self.w1)
+        xw1_b1 = nn.AddBias(xw1, self.b1)
+        ReLu_xw1_b1 = nn.ReLU(xw1_b1)
+        xw2 = nn.Linear(ReLu_xw1_b1, self.w2)
+        predicted_y = nn.AddBias(xw2, self.b2)
+
+        return predicted_y
 
     def get_loss(self, x, y):
         """
@@ -180,12 +197,23 @@ class DigitClassificationModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        predicted_y = self.run(x)
+        loss = nn.SoftmaxLoss(predicted_y, y)
+        return loss
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+        while dataset.get_validation_accuracy() < 0.98:
+            for x, y in dataset.iterate_once(self.BATCH_SIZE):
+                loss = self.get_loss(x, y)
+                grad_w1, grad_b1, grad_w2, grad_b2 = nn.gradients(loss, [self.w1, self.b1, self.w2, self.b2])
+                self.w1.update(grad_w1, -self.LEARNING_RATE)
+                self.b1.update(grad_b1, -self.LEARNING_RATE)
+                self.w2.update(grad_w2, -self.LEARNING_RATE)
+                self.b2.update(grad_b2, -self.LEARNING_RATE)
 
 class LanguageIDModel(object):
     """
