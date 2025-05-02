@@ -66,6 +66,16 @@ class RegressionModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
+        self.HIDDEN_LAYER_SIZE = 512
+        self.BATCH_SIZE = 200
+        self.LEARNING_RATE = 0.05
+        self.INPUT_SIZE = 1
+        self.OUTPUT_SIZE = 1
+
+        self.w1 = nn.Parameter(self.INPUT_SIZE, self.HIDDEN_LAYER_SIZE)
+        self.b1 = nn.Parameter(1, self.HIDDEN_LAYER_SIZE)
+        self.w2 = nn.Parameter(self.HIDDEN_LAYER_SIZE, self.OUTPUT_SIZE)
+        self.b2 = nn.Parameter(1, self.OUTPUT_SIZE)
 
     def run(self, x):
         """
@@ -77,6 +87,13 @@ class RegressionModel(object):
             A node with shape (batch_size x 1) containing predicted y-values
         """
         "*** YOUR CODE HERE ***"
+        xw1 = nn.Linear(x, self.w1)
+        xw1_b1 = nn.AddBias(xw1, self.b1)
+        ReLu_xw1_b1 = nn.ReLU(xw1_b1)
+        xw2 = nn.Linear(ReLu_xw1_b1, self.w2)
+        predicted_y = nn.AddBias(xw2, self.b2)
+
+        return predicted_y
 
     def get_loss(self, x, y):
         """
@@ -89,12 +106,31 @@ class RegressionModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        predicted_y = self.run(x)
+        loss = nn.SquareLoss(predicted_y, y)
+        return loss
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+
+        while True:
+            sum_loss = 0
+            num_loss = 0
+            for x, y in dataset.iterate_once(self.BATCH_SIZE):
+                loss = self.get_loss(x, y)
+                sum_loss += nn.as_scalar(loss)
+                num_loss += 1
+                if sum_loss / num_loss < 0.02:
+                    return
+                grad_w1, grad_b1, grad_w2, grad_b2 = nn.gradients(loss, [self.w1, self.b1, self.w2, self.b2])
+                self.w1.update(grad_w1, -self.LEARNING_RATE)
+                self.b1.update(grad_b1, -self.LEARNING_RATE)
+                self.w2.update(grad_w2, -self.LEARNING_RATE)
+                self.b2.update(grad_b2, -self.LEARNING_RATE)
+            
 
 class DigitClassificationModel(object):
     """
